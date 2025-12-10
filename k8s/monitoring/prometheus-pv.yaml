@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv
+  labels:
+    app: prometheus
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""        # 동적 프로비저너 없으니 빈 값
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /data/prometheus     # k8s-node01의 실제 디렉터리
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-node01
+

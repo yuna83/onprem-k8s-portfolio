@@ -1,0 +1,42 @@
+---
+# roles/kubernetes/tasks/main.yml
+# kubeadm, kubelet, kubectl 설치 + 최신 pkgs.k8s.io 저장소 사용
+
+- name: Ensure apt keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Add Kubernetes apt repository GPG key (pkgs.k8s.io)
+  ansible.builtin.shell: |
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | \
+      gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Add Kubernetes apt repository (pkgs.k8s.io)
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    content: |
+      deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /
+
+- name: Update apt cache after adding Kubernetes repo
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install kubelet, kubeadm, kubectl
+  ansible.builtin.apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+
+- name: Hold kubelet, kubeadm, kubectl at current version
+  ansible.builtin.command: >
+    apt-mark hold kubelet kubeadm kubectl
+  register: hold_result
+  changed_when: "'marking' in hold_result.stdout or 'hold' in hold_result.stdout"
+  failed_when: hold_result.rc not in [0]
+

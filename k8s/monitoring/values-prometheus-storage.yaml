@@ -1,0 +1,15 @@
+prometheus:
+  prometheusSpec:
+    retention: 7d          # 저장 기간 (예: 7일, 필요하면 15d, 30d 등)
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ""              # 위 PV와 맞춤
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi                 # PV capacity와 일치
+          selector:
+            matchLabels:
+              app: prometheus               # PV labels와 일치
+

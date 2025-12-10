@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: jenkins
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: jenkins.team3.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jenkins          # kubectl -n jenkins get svc 로 실제 이름 확인
+                port:
+                  number: 8080         # Jenkins HTTP 포트
+

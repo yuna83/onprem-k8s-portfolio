@@ -1,0 +1,7 @@
+ansible_user: ubuntu
+ansible_become: true
+
+kubernetes_version: "1.28.15"
+pod_network_cidr: "192.168.0.0/16"
+metallb_address_pool: "192.168.20.200-192.168.20.210"
+

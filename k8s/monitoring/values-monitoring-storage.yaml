@@ -1,0 +1,23 @@
+grafana:
+  persistence:
+    enabled: true
+    type: pvc
+    existingClaim: grafana-pvc     # 이미 있는 PVC 사용
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi                     # 정보용; existingClaim이면 실제 용량은 PV 기준
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ""
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+          selector:
+            matchLabels:
+              app: prometheus

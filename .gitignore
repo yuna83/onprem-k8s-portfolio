@@ -1,0 +1,48 @@
+# 일반 에디터/OS 생성 파일
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 로그, 임시 파일
+*.log
+logs/
+tmp/
+*.tmp
+
+# 빌드/캐시
+__pycache__/
+*.pyc
+node_modules/
+dist/
+target/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Ansible
+*.retry
+
+# Kubernetes 관련 민감 파일
+# kubeconfig 안에 클러스터 인증서/토큰이 들어있으므로 웬만하면 올리지 말 것
+.kube/
+kubeconfig
+*kubeconfig*
+
+# 실제 비밀번호/토큰이 들어간 파일은 직접 이름 지정해서 제외
+secrets/
+*secret*.yaml
+*Secret*.yaml
+*password*.yaml
+*passwd*.yaml
+*token*.yaml
+*.pem
+*.key
+
+# IDE 관련
+.vscode/
+.idea/
+

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+  namespace: petclinic
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # 새 버전 올라갈 때 1개 더 허용
+      maxUnavailable: 0    # 항상 최소 2개 중 2개 유지 (무중단 목표)
+  selector:
+    matchLabels:
+      app: petclinic
+  template:
+    metadata:
+      labels:
+        app: petclinic
+    spec:
+      containers:
+        - name: petclinic
+          image: josohyun/spring-petclinic:1   # 초기용, 어차피 Jenkins가 set image로 덮어씀
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "postgres"
+
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://192.168.20.104:5432/petclinic"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "petclinic"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "petclinic"
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+

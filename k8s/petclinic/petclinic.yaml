@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: petclinic
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: petclinic-db-secret
+  namespace: petclinic
+type: Opaque
+stringData:
+  username: petclinic
+  password: petclinic
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+  namespace: petclinic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petclinic
+  template:
+    metadata:
+      labels:
+        app: petclinic
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-node01
+      containers:
+        - name: petclinic
+          image: josohyun/spring-petclinic:1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "postgres"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://192.168.20.104:5432/petclinic"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: petclinic-db-secret
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: petclinic-db-secret
+                  key: password
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic
+  namespace: petclinic
+spec:
+  selector:
+    app: petclinic
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP
+

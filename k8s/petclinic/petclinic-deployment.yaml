@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+  namespace: petclinic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petclinic
+  template:
+    metadata:
+      labels:
+        app: petclinic
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-node01   # 또는 node02로 고정하고 싶으면 수정
+      containers:
+        - name: petclinic
+          image: josohyun/spring-petclinic:1   # Jenkins가 푸시한 태그로
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "postgres"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://192.168.20.104:5432/petclinic"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "petclinic"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "petclinic"
+          # 일단 리소스 제한은 빼고 가볍게 돌리자
+          # resources:
+          #   requests:
+          #     cpu: 200m
+          #     memory: 512Mi
+          #   limits:
+          #     cpu: 500m
+          #     memory: 1Gi
+

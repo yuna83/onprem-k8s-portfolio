@@ -1,0 +1,21 @@
+# jenkins-servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: jenkins-servicemonitor
+  namespace: monitoring
+  labels:
+    release: kps              # kps-prometheus가 이 라벨을 보고 잡도록 (values-kps.yaml에서 쓰던 릴리즈명)
+spec:
+  namespaceSelector:
+    matchNames:
+      - jenkins               # Jenkins Service가 있는 네임스페이스
+  selector:
+    matchLabels:
+      app: jenkins            # 위 Service의 라벨과 동일하게
+  endpoints:
+    - port: http              # Service port name
+      path: /prometheus/       # Jenkins 플러그인 endpoint (뒤에 / 필요하면 /prometheus/ 로)
+      interval: 30s
+      scheme: http
+

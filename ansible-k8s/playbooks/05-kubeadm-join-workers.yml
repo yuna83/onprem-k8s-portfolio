@@ -1,0 +1,26 @@
+---
+- name: Join worker nodes to Kubernetes cluster
+  hosts: workers
+  become: true
+
+  vars:
+    kubeadm_join_cmd_file: /home/ubuntu/kubeadm_join.sh
+
+  tasks:
+    - name: Read kubeadm join command from master
+      delegate_to: k8s-master
+      become: false
+      ansible.builtin.slurp:
+        src: "{{ kubeadm_join_cmd_file }}"
+      register: join_script
+
+    - name: Decode join script content
+      ansible.builtin.set_fact:
+        kubeadm_join_script: "{{ join_script.content | b64decode }}"
+
+    - name: Run kubeadm join on worker
+      ansible.builtin.shell: |
+        {{ kubeadm_join_script }}
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+

@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-node-exporter
+  namespace: monitoring
+  labels:
+    app: db-node-exporter
+spec:
+  ports:
+    - name: http
+      port: 9100
+      targetPort: 9100
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: db-node-exporter
+  namespace: monitoring
+  labels:
+    app: db-node-exporter
+subsets:
+  - addresses:
+      - ip: 192.168.20.104    # DB 서버 IP
+    ports:
+      - name: http
+        port: 9100
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: db-node-exporter
+  namespace: monitoring
+  labels:
+    release: kps              # kube-prometheus-stack 릴리즈 라벨(kps)과 동일
+spec:
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  selector:
+    matchLabels:
+      app: db-node-exporter
+  endpoints:
+    - port: http
+      interval: 30s
+

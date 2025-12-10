@@ -1,0 +1,7 @@
+---
+- name: Install and configure containerd on all Kubernetes nodes
+  hosts: all_k8s
+  become: true
+  roles:
+    - containerd
+
