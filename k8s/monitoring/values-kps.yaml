@@ -2,7 +2,9 @@ global:
   rbac:
     create: true
 
-# Prometheus 설정
+# =========================
+# Prometheus Configuration
+# =========================
 prometheus:
   prometheusSpec:
     retention: 7d
@@ -11,22 +13,23 @@ prometheus:
 
   ingress:
     enabled: true
-    ingressClassName: nginx     # 이미 쓰는 ingress-nginx Controller
+    ingressClassName: nginx
     hosts:
       - prometheus.team3
     paths:
       - /
     pathType: Prefix
-    # 처음엔 HTTP만 쓰려면 tls 블록은 제거/주석
-    # tls:
-    #   - secretName: prometheus-tls
-    #     hosts:
-    #       - prometheus.team3
 
-# Grafana 설정
+
+# ======================
+# Grafana Configuration
+# ======================
 grafana:
-  adminUser: admin
-  adminPassword: "Admin1234!"   # 테스트용, 나중엔 Secret로 분리 추천
+  # 관리자 계정 정보는 Secret으로 분리
+  admin:
+    existingSecret: grafana-admin-secret
+    userKey: admin-user
+    passwordKey: admin-password
 
   service:
     type: ClusterIP
@@ -38,21 +41,17 @@ grafana:
       - grafana.team3
     path: /
     pathType: Prefix
-    # tls:
-    #   - secretName: grafana-tls
-    #     hosts:
-    #       - grafana.team3
 
   defaultDashboardsEnabled: true
 
   persistence:
     enabled: true
     type: pvc
-    existingClaim: grafana-pvc   # 2번에서 만든 PVC 이름
+    existingClaim: grafana-pvc
     accessModes:
       - ReadWriteOnce
     size: 10Gi
-    storageClassName: ""         # 없으니까 빈 문자열 유지
+    storageClassName: ""
 
     initChownData:
       enabled: false
